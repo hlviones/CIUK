@@ -51,9 +51,8 @@ echo -e "\n\n"
 
 # Splitting Stack
 echo "Starting Splitting Stack"
-dir="output/staging"
 # List all files in the directory
-for file in "${dir}"/*; do
+for file in "${staging_folder}"/*; do
     # Split all TIFF's 
     time apptainer run --containall --bind output/:/output /mnt/hc-storage/users/hlviones/containers/cbf_tiffsplit.sif /"${file}" /output/fiji/
 done
