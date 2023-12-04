@@ -32,9 +32,9 @@ staging_folder="output/staging"
 if [[ ! -e "${staging_folder}" ]]; then
     mkdir -p "${staging_folder}"
 fi
-cp C2-FK-09-MV.tif output/staging/
-cp C1-FK-09-MV.tif output/staging/
-cp C3-FK-09-MV.tif output/staging/
+cp C2-FK-09-MV.tif $staging_folder
+cp C1-FK-09-MV.tif $staging_folder
+cp C3-FK-09-MV.tif $staging_folder
 
 # Prepare Output Folders
 fiji_folder="output/fiji"
