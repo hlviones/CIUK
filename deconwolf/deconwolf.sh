@@ -54,7 +54,7 @@ echo "Starting Splitting Stack"
 # List all files in the directory
 for file in "${staging_folder}"/*; do
     # Split all TIFF's 
-    time apptainer run --containall --bind output/:/output /mnt/hc-storage/users/hlviones/containers/cbf_tiffsplit.sif /"${file}" /output/fiji/
+    time apptainer run --containall --bind output/:/output /mnt/hc-storage/users/hlviones/containers/cbf_tiffsplit.sif /"${file}" "${fiji_folder}"
 done
 
 # Initialize line count
