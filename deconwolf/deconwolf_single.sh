@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --cpus-per-task=4
 #SBATCH --job-name=DECONWOLF_4_CORE_CLUSTER_BENCHMARK
-cd () { 
+
+cd() { 
   builtin cd "$@" 
-  if [[ "$PWD" == *"/home/hlviones"* ]]
-  then
+  if [[ "$PWD" == *"/home/hlviones"* ]]; then
     echo "In the /home/hlviones directory. Exiting the script."
     exit 1
   fi
@@ -43,50 +43,49 @@ while (( "$#" )); do
 done
 
 # Check if the variables are set
-if [[ -z $lambda ]]; then
+if [[ -z "${lambda}" ]]; then
   echo "Error: --lambda argument not set"
   exit 1
 fi
 
-if [[ -z $input_file ]]; then
+if [[ -z "${input_file}" ]]; then
   echo "Error: --input_file argument not set"
   exit 1
 fi
 
 TIMEFORMAT=%R
 
-mkdir output/
-
-
+# Create output directory if it doesn't exist
+if [[ ! -e output ]]; then
+    mkdir output
+fi
 
 # Prepare Staging Folders
 staging_folder="output/staging"
-mkdir -p $staging_folder
-cp $input_file output/staging/
-mkdir -p $fiji_folder
+if [[ ! -e "${staging_folder}" ]]; then
+    mkdir -p "${staging_folder}"
+fi
+cp "${input_file}" "${staging_folder}"
+if [[ $? -ne 0 ]]; then
+    echo "Failed to copy ${input_file}"
+    exit 1
+fi
+
+fiji_folder="output/fiji"
+if [[ ! -e "${fiji_folder}" ]]; then
+    mkdir -p "${fiji_folder}"
+fi
 mkdir -p "output/deconwolf"
 echo -e "\n\n"
 
+num_lines=$(ls "${fiji_folder}" | wc -l)
+echo "${num_lines}"
 
-
-
-echo $num_lines
-
-
-
-time apptainer run --nv --containall --bind output/deconwolf/:/deconwolf /mnt/hc-storage/users/hlviones/containers/cbf_deconwolf_0.3.2.sif dw_bw --lambda $lambda --NA 1.0 --ni 1.33 --resxy 510 --resz 1250 /deconwolf/PSF_$lambda.tif --verbose 2
-
+time apptainer run --nv --containall --bind output/deconwolf/:/deconwolf /mnt/hc-storage/users/hlviones/containers/cbf_deconwolf_0.3.2.sif dw_bw --lambda "${lambda}" --NA 1.0 --ni 1.33 --resxy 510 --resz 1250 /deconwolf/PSF_"${lambda}".tif --verbose 2
 
 echo -e "\nSplitting Deconwolf Jobs"
 
-
-time apptainer run --containall --bind output/staging/:/staging,output/deconwolf/:/deconwolf /mnt/hc-storage/users/hlviones/containers/cbf_deconwolf_0.3.2.sif dw /staging/$input_file /deconwolf/PSF_$lambda.tif --out /deconwolf/dw_$input_file
-
-
-
-
- 
-
+time apptainer run --containall --bind output/staging/:/staging,output/deconwolf/:/deconwolf /mnt/hc-storage/users/hlviones/containers/cbf_deconwolf_0.3.2.sif dw /staging/"${input_file}" /deconwolf/PSF_"${lambda}".tif --out /deconwolf/dw_"${input_file}"
 
 echo -e "\nCOMPLETED JOB"
 exit 0
